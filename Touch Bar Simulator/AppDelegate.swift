@@ -78,15 +78,11 @@ extension AppDelegate: NSMenuDelegate {
 			return
 		}
 
-		menu.addItem(NSMenuItem(title: "Docking", action: nil, keyEquivalent: ""))
-		var statusMenuDockingItems: [NSMenuItem] = []
-		statusMenuDockingItems.append(NSMenuItem("Floating").bindChecked(to: .windowDocking, value: .floating))
-		statusMenuDockingItems.append(NSMenuItem("Docked to Top").bindChecked(to: .windowDocking, value: .dockedToTop))
-		statusMenuDockingItems.append(NSMenuItem("Docked to Bottom").bindChecked(to: .windowDocking, value: .dockedToBottom))
-		for item in statusMenuDockingItems {
-			item.indentationLevel = 1
-		}
-		menu.items.append(contentsOf: statusMenuDockingItems)
+		menu.addIndentedItemGroup("Docking", [
+			NSMenuItem("Floating").bindChecked(to: .windowDocking, value: .floating),
+			NSMenuItem("Docked to Top").bindChecked(to: .windowDocking, value: .dockedToTop),
+			NSMenuItem("Docked to Bottom").bindChecked(to: .windowDocking, value: .dockedToBottom)
+		])
 
 		func sliderMenuItem(_ title: String, boundTo key: Defaults.Key<Double>, min: Double, max: Double) -> NSMenuItem {
 			let menuItem = NSMenuItem(title)
@@ -118,15 +114,15 @@ extension AppDelegate: NSMenuDelegate {
 
 		menu.addItem(NSMenuItem.separator())
 
-		menu.addItem(NSMenuItem("Capture Screenshot", keyEquivalent: "6", keyModifiers: [.shift, .command]) { _ in
-			self.captureScreenshot()
-		})
+		menu.addIndentedItemGroup("Hide and Show Automatically", [
+			NSMenuItem("Never").bindChecked(to: .autohideMode, value: nil),
+			NSMenuItem("While Navigating Menus").bindChecked(to: .autohideMode, value: .whileNavigatingMenus),
+			NSMenuItem("Like the Dock").bindChecked(to: .autohideMode, value: .likeDock)
+		])
 
 		menu.addItem(NSMenuItem.separator())
 
 		menu.addItem(NSMenuItem("Show on All Desktops").bindState(to: .showOnAllDesktops))
-
-		menu.addItem(NSMenuItem("Hide and Show Automatically").bindState(to: .dockBehavior))
 
 		menu.addItem(NSMenuItem("Launch at Login", isChecked: LaunchAtLogin.isEnabled) { item in
 			item.isChecked.toggle()
@@ -141,6 +137,12 @@ extension AppDelegate: NSMenuDelegate {
 			popover.contentViewController = NSHostingController(rootView: KeyboardShortcutsView())
 			popover.behavior = .transient
 			popover.show(relativeTo: button.frame, of: button, preferredEdge: .maxY)
+		})
+
+		menu.addItem(NSMenuItem.separator())
+
+		menu.addItem(NSMenuItem("Capture Screenshot", keyEquivalent: "6", keyModifiers: [.shift, .command]) { _ in
+			self.captureScreenshot()
 		})
 
 		menu.addItem(NSMenuItem.separator())
@@ -170,7 +172,9 @@ extension AppDelegate: NSMenuDelegate {
 	private func statusItemButtonClicked() {
 		// When the user explicitly wants the Touch Bar to appear then `dockBahavior` should be disabled.
 		// This is also how the macOS Dock behaves.
-		Defaults[.dockBehavior] = false
+		if Defaults[.autohideMode] == .likeDock {
+			Defaults[.autohideMode] = nil
+		}
 
 		toggleView()
 

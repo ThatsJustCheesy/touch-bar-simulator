@@ -39,6 +39,11 @@ final class TouchBarWindow: NSPanel {
 		}
 	}
 
+	enum AutohideMode: String, Codable {
+		case likeDock
+		case whileNavigatingMenus
+	}
+
 	override var canBecomeMain: Bool { false }
 	override var canBecomeKey: Bool { false }
 
@@ -48,12 +53,12 @@ final class TouchBarWindow: NSPanel {
 				Defaults[.lastFloatingPosition] = frame.origin
 			}
 
-			if docking == .floating {
-				dockBehavior = false
+			if docking == .floating, autohideMode == .likeDock {
+				Defaults[.autohideMode] = Defaults[.lastUndockedAutohideMode]
 			}
 
 			// Prevent the Touch Bar from momentarily becoming visible.
-			if docking == .floating || !dockBehavior {
+			if docking == .floating || autohideMode != .likeDock {
 				stopDockBehaviorTimer()
 				docking.dock(window: self, padding: Defaults[.windowPadding])
 				setIsVisible(true)
@@ -61,8 +66,8 @@ final class TouchBarWindow: NSPanel {
 				return
 			}
 
-			// When docking is set to `dockedToTop` or `dockedToBottom` dockBehavior should start.
-			if dockBehavior {
+			// When docking is set to `dockedToTop` or `dockedToBottom`, .likeDock behavior should start.
+			if autohideMode == .likeDock {
 				setIsVisible(false)
 				docking.dock(window: self, padding: Defaults[.windowPadding])
 				startDockBehaviorTimer()
@@ -98,26 +103,33 @@ final class TouchBarWindow: NSPanel {
 	func stopDockBehaviorTimer() {
 		dockBehaviorTimer.invalidate()
 		dockBehaviorTimer = Timer()
+		dismissAnimationDidRun = false
 	}
 
-	var dockBehavior: Bool = Defaults[.dockBehavior] {
+	var autohideMode: AutohideMode? = Defaults[.autohideMode] {
 		didSet {
-			Defaults[.dockBehavior] = dockBehavior
-			if docking == .dockedToBottom || docking == .dockedToTop {
+			if docking == .floating {
+				Defaults[.lastUndockedAutohideMode] = oldValue
+			}
+
+			if
+				oldValue == .likeDock,
+				docking == .dockedToBottom || docking == .dockedToTop
+			{
 				Defaults[.lastWindowDockingWithDockBehavior] = docking
 			}
 
-			if dockBehavior {
-				if docking == .dockedToBottom || docking == .dockedToTop {
-					docking = Defaults[.lastWindowDockingWithDockBehavior]
-					startDockBehaviorTimer()
-				} else if docking == .floating {
+			if autohideMode == .likeDock {
+				if docking == .floating {
 					Defaults[.windowDocking] = Defaults[.lastWindowDockingWithDockBehavior]
 				}
+				startDockBehaviorTimer()
 			} else {
 				stopDockBehaviorTimer()
 				setIsVisible(true)
 			}
+
+			// TODO: menu mode
 		}
 	}
 
@@ -311,8 +323,8 @@ final class TouchBarWindow: NSPanel {
 			Defaults.observe(.showOnAllDesktops) { [weak self] change in
 				self?.showOnAllDesktops = change.newValue
 			}
-			Defaults.observe(.dockBehavior) { [weak self] change in
-				self?.dockBehavior = change.newValue
+			Defaults.observe(.autohideMode) { [weak self] change in
+				self?.autohideMode = change.newValue
 			}
 		}
 
@@ -323,7 +335,7 @@ final class TouchBarWindow: NSPanel {
 		setFrameAutosaveName(Constants.windowAutosaveName)
 
 		// Prevent the Touch Bar from momentarily becoming visible.
-		if !dockBehavior {
+		if autohideMode != .likeDock {
 			orderFront(nil)
 		}
 

@@ -132,6 +132,16 @@ extension NSMenuItem {
 	}
 }
 
+extension NSMenu {
+	func addIndentedItemGroup(_ title: String, _ groupedItems: [NSMenuItem]) {
+		addItem(NSMenuItem(title))
+		for item in groupedItems {
+			item.indentationLevel = 1
+			addItem(item)
+		}
+	}
+}
+
 
 final class AssociatedObject<T: Any> {
 	subscript(index: Any) -> T? {
@@ -291,7 +301,7 @@ extension NSScreen {
 }
 
 
-extension Collection where Element == DefaultsObservation {
+extension Collection where Element == Defaults.Observation {
 	@discardableResult
 	func tieAllToLifetime(of weaklyHeldObject: AnyObject) -> Self {
 		for observation in self {
@@ -302,7 +312,7 @@ extension Collection where Element == DefaultsObservation {
 }
 
 extension Defaults {
-	static func tiedToLifetime(of weaklyHeldObject: AnyObject, @ArrayBuilder<DefaultsObservation> _ observations: () -> [DefaultsObservation]) {
+	static func tiedToLifetime(of weaklyHeldObject: AnyObject, @ArrayBuilder<Defaults.Observation> _ observations: () -> [Defaults.Observation]) {
 		observations().tieAllToLifetime(of: weaklyHeldObject)
 	}
 }

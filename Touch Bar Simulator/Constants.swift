@@ -12,8 +12,9 @@ extension Defaults.Keys {
 	static let windowPadding = Key<Double>("windowPadding", default: 0.0)
 	static let showOnAllDesktops = Key<Bool>("showOnAllDesktops", default: false)
 	static let lastFloatingPosition = Key<CGPoint?>("lastFloatingPosition")
-	static let dockBehavior = Key<Bool>("dockBehavior", default: false)
+	static let autohideMode = Key<TouchBarWindow.AutohideMode?>("autohideMode", default: nil)
 	static let lastWindowDockingWithDockBehavior = Key<TouchBarWindow.Docking>("windowDockingWithDockBehavior", default: .dockedToTop)
+	static let lastUndockedAutohideMode = Key<TouchBarWindow.AutohideMode?>("lastUndockedAutohideMode", default: nil)
 }
 
 extension KeyboardShortcuts.Name {
