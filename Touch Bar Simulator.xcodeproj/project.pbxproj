@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3C48E6A6247C370E00D22565 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 3C48E6A5247C370E00D22565 /* KeyboardShortcuts */; };
+		3C7911F824B7C48400D8F0D7 /* UserFocusWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7911F724B7C48400D8F0D7 /* UserFocusWatcher.swift */; };
 		3C8493AD21FD3B7F00F12966 /* Glue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8493AC21FD3B7F00F12966 /* Glue.swift */; };
 		3C906EED231C5FB90099B139 /* LaunchAtLogin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C906EEB231C5FB50099B139 /* LaunchAtLogin.framework */; };
 		3C906EEE231C5FB90099B139 /* LaunchAtLogin.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C906EEB231C5FB50099B139 /* LaunchAtLogin.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -48,6 +49,7 @@
 
 /* Begin PBXFileReference section */
 		3C37035321FBEBD300177657 /* Defaults.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Defaults.framework; path = Carthage/Build/Mac/Defaults.framework; sourceTree = "<group>"; };
+		3C7911F724B7C48400D8F0D7 /* UserFocusWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFocusWatcher.swift; sourceTree = "<group>"; };
 		3C8493AC21FD3B7F00F12966 /* Glue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Glue.swift; sourceTree = "<group>"; usesTabs = 1; };
 		3C906EEB231C5FB50099B139 /* LaunchAtLogin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LaunchAtLogin.framework; path = Carthage/Build/Mac/LaunchAtLogin.framework; sourceTree = "<group>"; };
 		3CF6C770247CC3DF007554B9 /* KeyboardShortcutsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardShortcutsView.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 				3CF6C770247CC3DF007554B9 /* KeyboardShortcutsView.swift */,
 				3C8493AC21FD3B7F00F12966 /* Glue.swift */,
 				E35831A31F4D7EE0003BE371 /* Utilities.swift */,
+				3C7911F724B7C48400D8F0D7 /* UserFocusWatcher.swift */,
 				E3FE2CC41E726CE800C6713A /* Assets.xcassets */,
 				E356A16421028DAB000148AD /* Other */,
 			);
@@ -277,6 +280,7 @@
 				E356A16321028D81000148AD /* main.swift in Sources */,
 				E35579EB21595EDC001CB642 /* TouchBarWindow.swift in Sources */,
 				E3930B10216625BE00F66410 /* Constants.swift in Sources */,
+				3C7911F824B7C48400D8F0D7 /* UserFocusWatcher.swift in Sources */,
 				E3FE2CC31E726CE800C6713A /* AppDelegate.swift in Sources */,
 				E39A158E214D0C4F00F86D5D /* TouchBarView.swift in Sources */,
 			);

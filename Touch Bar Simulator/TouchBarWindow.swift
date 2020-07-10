@@ -334,7 +334,19 @@ final class TouchBarWindow: NSPanel {
 
 			self.docking.reposition(window: self, padding: Defaults[.windowPadding])
 		}
+
+		// FIXME: move this
+		watcher = UserFocusWatcher { focusChange in
+			switch focusChange {
+			case .opened:
+				self.setIsVisible(false)
+			case .closed:
+				self.setIsVisible(true)
+			}
+		}
 	}
+
+	var watcher: UserFocusWatcher?
 
 	convenience init() {
 		self.init(
