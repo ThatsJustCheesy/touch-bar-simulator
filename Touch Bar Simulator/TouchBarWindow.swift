@@ -106,6 +106,9 @@ final class TouchBarWindow: NSPanel {
 		dismissAnimationDidRun = false
 	}
 
+	var activeAppMenuFocusWatcher: ActiveAppMenuFocusWatcher?
+	var wasVisibleBeforeMenuOpened: Bool = false
+
 	var autohideMode: AutohideMode? = Defaults[.autohideMode] {
 		didSet {
 			if docking == .floating {
@@ -129,7 +132,22 @@ final class TouchBarWindow: NSPanel {
 				setIsVisible(true)
 			}
 
-			// TODO: menu mode
+			if autohideMode == .whileNavigatingMenus {
+				activeAppMenuFocusWatcher = ActiveAppMenuFocusWatcher { menuFocusChange in
+					switch menuFocusChange {
+					case .opened:
+						if self.isVisible {
+							self.wasVisibleBeforeMenuOpened = true
+							self.setIsVisible(false)
+						}
+					case .closed:
+						if self.wasVisibleBeforeMenuOpened {
+							self.setIsVisible(true)
+						}
+						self.wasVisibleBeforeMenuOpened = false
+					}
+				}
+			}
 		}
 	}
 
@@ -346,19 +364,7 @@ final class TouchBarWindow: NSPanel {
 
 			self.docking.reposition(window: self, padding: Defaults[.windowPadding])
 		}
-
-		// FIXME: move this
-		watcher = UserFocusWatcher { focusChange in
-			switch focusChange {
-			case .opened:
-				self.setIsVisible(false)
-			case .closed:
-				self.setIsVisible(true)
-			}
-		}
 	}
-
-	var watcher: UserFocusWatcher?
 
 	convenience init() {
 		self.init(

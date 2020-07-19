@@ -1,17 +1,17 @@
 import Cocoa
 
-class UserFocusWatcher {
-	private var appWatcher: AppFocusWatcher?
-	private var menuWatcher: MenuFocusWatcher?
+class ActiveAppMenuFocusWatcher {
+	private var appWatcher: ActiveAppWatcher?
+	private var menuWatcher: SingleAppMenuFocusWatcher?
 
-	typealias MenuFocusChange = MenuFocusWatcher.FocusChange
-	typealias MenuFocusChangeCallback = MenuFocusWatcher.MenuFocusChangeCallback
+	typealias MenuFocusChange = SingleAppMenuFocusWatcher.FocusChange
+	typealias MenuFocusChangeCallback = SingleAppMenuFocusWatcher.MenuFocusChangeCallback
 
     var callback: MenuFocusChangeCallback
 
 	init(callback: @escaping MenuFocusChangeCallback) {
 		self.callback = callback
-		self.appWatcher = AppFocusWatcher { [weak self] application in
+		self.appWatcher = ActiveAppWatcher { [weak self] application in
 			guard let self = self else {
 				return
 			}
@@ -19,12 +19,12 @@ class UserFocusWatcher {
 				self.menuWatcher = nil
 				return
 			}
-			self.menuWatcher = MenuFocusWatcher(for: application, callback: callback)
+			self.menuWatcher = SingleAppMenuFocusWatcher(for: application, callback: callback)
 		}
 	}
 }
 
-class AppFocusWatcher {
+class ActiveAppWatcher {
     private var observer: Any?
 
     typealias AppSwitchCallback = (_ application: NSRunningApplication?) -> Void
@@ -45,7 +45,7 @@ class AppFocusWatcher {
 	}
 }
 
-class MenuFocusWatcher {
+class SingleAppMenuFocusWatcher {
 	private var observer: Accessibility.Observer
 	private var currentMenu: Accessibility.UIElement?
 
