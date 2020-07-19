@@ -47,7 +47,7 @@ class ActiveAppWatcher {
 
 class SingleAppMenuFocusWatcher {
 	private var observer: Accessibility.Observer
-	private var currentMenu: Accessibility.UIElement?
+	private var openMenuCount: Int = 0
 
 	enum FocusChange {
 		case opened, closed
@@ -67,24 +67,19 @@ class SingleAppMenuFocusWatcher {
 
         for notification in [kAXMenuOpenedNotification, kAXMenuClosedNotification] {
             do {
-                try self.observer.register(for: notification, from: element) { [weak self] notification, uiElement in
+                try self.observer.register(for: notification, from: element) { [weak self] notification, _ in
 					guard let self = self else {
 						return
 					}
 					switch notification {
 					case kAXMenuOpenedNotification:
-						self.currentMenu = uiElement
-						self.callback(.opened)
+						if self.openMenuCount == 0 {
+							self.callback(.opened)
+						}
+						self.openMenuCount += 1
 					case kAXMenuClosedNotification:
-						// The accessibility APIs send menu open/close events
-						// such that two menus can be "open" at the same time
-						// for a short moment when the user is browsing the menu bar.
-						// If the menu for the close event is not the same as
-						// the last opened menu, then this double-open event
-						// occurred and we should avoid sending a "close" callback
-						// (since the user is browsing menus, and there is still
-						// a menu currently open).
-						if uiElement.axUIElement == self.currentMenu?.axUIElement {
+						self.openMenuCount -= 1
+						if self.openMenuCount == 0 {
 							self.callback(.closed)
 						}
 					default:
@@ -99,7 +94,7 @@ class SingleAppMenuFocusWatcher {
 }
 
 enum Accessibility {
-    struct UIElement: Equatable {
+    struct UIElement {
         let axUIElement: AXUIElement
 
         init(_ axUIElement: AXUIElement) {
@@ -116,15 +111,6 @@ enum Accessibility {
         static func forApplication(pid: pid_t) -> Self {
             Self(AXUIElementCreateApplication(pid))
         }
-
-		static func == (lhs: UIElement, rhs: UIElement) -> Bool {
-			var lhsID: CFTypeRef?, rhsID: CFTypeRef?
-			AXUIElementCopyAttributeValue(lhs.axUIElement, kAXIdentifierAttribute as CFString, &lhsID)
-			AXUIElementCopyAttributeValue(rhs.axUIElement, kAXIdentifierAttribute as CFString, &rhsID)
-			return
-				(lhsID == nil && rhsID == nil) ||
-				(lhsID != nil && rhsID != nil && CFEqual(lhsID, rhsID))
-		}
     }
 
     class Observer {
