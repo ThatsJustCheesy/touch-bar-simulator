@@ -7,7 +7,7 @@ class ActiveAppMenuFocusWatcher {
 	typealias MenuFocusChange = SingleAppMenuFocusWatcher.FocusChange
 	typealias MenuFocusChangeCallback = SingleAppMenuFocusWatcher.MenuFocusChangeCallback
 
-    var callback: MenuFocusChangeCallback
+    private var callback: MenuFocusChangeCallback
 
 	init(callback: @escaping MenuFocusChangeCallback) {
 		self.callback = callback
@@ -145,9 +145,6 @@ enum Accessibility {
                 return nil
             }
 
-			// It is assumed that the user wants to start listening,
-			// and on the current runloop so that the thread on which the
-			// callback runs is the same as the thread that registered it.
 			CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(axObserver), .commonModes)
 
             self.init(axObserver)
